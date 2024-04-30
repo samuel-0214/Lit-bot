@@ -33,7 +33,7 @@ def get_text_chunks(text):
 #chunks of data into vectorDB
 def get_vectorstore(text_chunks, api_key1):
     #embeddings = HuggingFaceInstructEmbeddings(model_name='hkunlp/instructor-xl')
-    embeddings = OpenAIEmbeddings(model="text-embedding-ada-002", openai_api_key=os.getenv("OPENAI_API_KEY"))
+    embeddings = OpenAIEmbeddings(model="text-embedding-ada-002", openai_api_key=os.environ.get('OPENAI_API_KEY'))
     vector_store = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     vector_store.save_local("faiss_index")
 
@@ -41,7 +41,7 @@ def get_vectorstore(text_chunks, api_key1):
     load_dotenv(find_dotenv())
 
 def get_conversational_chain(context, user_question):
-    client = Client(api_key=os.getenv("OPENAI_API_KEY"))
+    client = Client(api_key=os.environ.get('OPENAI_API_KEY'))
     prompt_template = "Please answer the question with reference to the document provided."
 
     # Incorporate the document context and the user question into the prompt
@@ -57,7 +57,7 @@ def get_conversational_chain(context, user_question):
 
 def user_input(user_question, document_text):
     # This part remains unchanged
-    embeddings = OpenAIEmbeddings(model="text-embedding-ada-002",api_key=os.getenv("OPENAI_API_KEY"))
+    embeddings = OpenAIEmbeddings(model="text-embedding-ada-002",api_key=os.environ.get('OPENAI_API_KEY'))
     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     docs = new_db.similarity_search(user_question)
     
@@ -70,7 +70,7 @@ def user_input(user_question, document_text):
     st.write("Reply: ", response_text) 
 
 
-api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.environ.get('OPENAI_API_KEY')
 
 
 def main():
