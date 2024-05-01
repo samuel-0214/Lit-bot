@@ -11,7 +11,7 @@ import os
 
 st.set_page_config(page_title="Multiple-PDF-Bot", page_icon=":books:")
 
-st.header("Chaduvukondi firstuu!!!:books:")
+st.header("Let's Study!!!:books:")
 
 #reading the document
 def get_pdf_text(pdf_docs):
