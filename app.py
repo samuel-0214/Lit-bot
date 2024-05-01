@@ -15,12 +15,11 @@ st.header("Let's Study!!!:books:")
 
 #reading the document
 def get_pdf_text(pdf_docs):
-    text = "" # initializing a variable to store the text that is read
-    #iterating through the document and storing the whole document in pdf variable 
+    text = "" 
     for pdf in pdf_docs:
         pdf_reader = PdfReader(pdf)
         for page in pdf_reader.pages:
-            text += page.extract_text() # extracting the pages from the pdf that is read
+            text += page.extract_text()
     return text
 
 #converting the text read into chunks
@@ -37,36 +36,29 @@ def get_vectorstore(text_chunks, api_key1):
     vector_store = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     vector_store.save_local("faiss_index")
 
-    #for loading the pdfs that are processed 
     load_dotenv(find_dotenv())
 
 def get_conversational_chain(context, user_question):
     client = Client(api_key=os.environ.get('OPENAI_API_KEY'))
     prompt_template = "Please answer the question with reference to the document provided."
 
-    # Incorporate the document context and the user question into the prompt
     prompt = f"Document: {context}\nQuestion: {user_question}\n{prompt_template}"
 
     response = client.completions.create(
-        model="gpt-3.5-turbo-instruct",  # Use an appropriate model
+        model="gpt-3.5-turbo-instruct",
         prompt=prompt,
-        temperature=0.5,  # Adjust temperature as needed
-        max_tokens=550  # Adjust max_tokens as needed
+        temperature=0.5,
+        max_tokens=550  
     )
     return response.choices[0].text
 
 def user_input(user_question, document_text):
-    # This part remains unchanged
     embeddings = OpenAIEmbeddings(model="text-embedding-ada-002",api_key=os.environ.get('OPENAI_API_KEY'))
     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     docs = new_db.similarity_search(user_question)
-    
-    # Get the response from the OpenAI API
+
     response_text = get_conversational_chain(document_text, user_question)
-    
-    # Now, instead of trying to call `response_text` as a function,
-    # you should process it according to your application's needs.
-    # For example, you might log it, display it, or use it to inform further processing.
+
     st.write("Reply: ", response_text) 
 
 
@@ -74,12 +66,10 @@ api_key = os.environ.get('OPENAI_API_KEY')
 
 
 def main():
-    #for creating the website
-
     user_question = st.text_input("Ask a Question related to the PDF Files that you uploaded", key="user_question")
     document_text=""
 
-    if user_question and api_key:  # Ensure API key and user question are provided
+    if user_question and api_key: 
         user_input(user_question, document_text)
     
 
@@ -98,9 +88,6 @@ def main():
                 get_vectorstore(text_chunks, api_key)
 
                 st.success("Done")
-
-                #creating conversation chain
-                #conversation = get_conversation_chain(vectorstores)
                 
 
 if __name__ == '__main__':
